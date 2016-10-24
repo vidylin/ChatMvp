@@ -24,7 +24,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.chatmvp.R;
-import com.chatmvp.common.greenDAOBean.ChatBean;
 import com.chatmvp.common.constant.ConstantValues;
 import com.chatmvp.common.utils.FileSaveUtil;
 import com.chatmvp.common.widget.BubbleImageView;
@@ -50,7 +49,7 @@ import java.util.List;
  */
 public class ChatListViewAdapter extends BaseAdapter {
     private Context context;
-    private List<ChatBean> userList = new ArrayList<ChatBean>();
+    private List<com.chatmvp.common.greenDAOBean.ChatBean> userList = new ArrayList<>();
     private ArrayList<String> imageList = new ArrayList<String>();
     private HashMap<Integer,Integer> imagePosition = new HashMap<Integer,Integer>();
     public static final int FROM_USER_MSG = 0;//接收消息类型
@@ -120,7 +119,7 @@ public class ChatListViewAdapter extends BaseAdapter {
         this.isGif = isGif;
     }
 
-    public void setUserList(List<ChatBean> userList) {
+    public void setUserList(List<com.chatmvp.common.greenDAOBean.ChatBean> userList) {
         this.userList = userList;
     }
 
@@ -161,7 +160,7 @@ public class ChatListViewAdapter extends BaseAdapter {
     @SuppressLint("InflateParams")
     @Override
     public View getView(int i, View view, ViewGroup viewGroup) {
-        ChatBean tbub = userList.get(i);
+        com.chatmvp.common.greenDAOBean.ChatBean tbub = userList.get(i);
         switch (getItemViewType(i)) {
             case FROM_USER_MSG:
                 FromUserMsgViewHolder holder;
@@ -336,7 +335,7 @@ public class ChatListViewAdapter extends BaseAdapter {
         public ImageView sendFailImg;
     }
 
-    private void fromMsgUserLayout(final FromUserMsgViewHolder holder, final ChatBean tbub, final int position) {
+    private void fromMsgUserLayout(final FromUserMsgViewHolder holder, final com.chatmvp.common.greenDAOBean.ChatBean tbub, final int position) {
         holder.headicon.setBackgroundResource(R.mipmap.tongbao_hiv);
         /* time */
         if (position != 0) {
@@ -357,7 +356,7 @@ public class ChatListViewAdapter extends BaseAdapter {
         holder.content.setSpanText(handler, tbub.getUserContent(), isGif);
     }
 
-    private void fromImgUserLayout(final FromUserImageViewHolder holder, final ChatBean tbub, final int position) {
+    private void fromImgUserLayout(final FromUserImageViewHolder holder, final com.chatmvp.common.greenDAOBean.ChatBean tbub, final int position) {
         holder.headicon.setBackgroundResource(R.mipmap.tongbao_hiv);
         /* time */
         if (position != 0) {
@@ -410,7 +409,7 @@ public class ChatListViewAdapter extends BaseAdapter {
 
     }
 
-    private void fromVoiceUserLayout(final FromUserVoiceViewHolder holder, final ChatBean tbub, final int position) {
+    private void fromVoiceUserLayout(final FromUserVoiceViewHolder holder, final com.chatmvp.common.greenDAOBean.ChatBean tbub, final int position) {
         holder.headicon.setBackgroundResource(R.mipmap.tongbao_hiv);
         /* time */
         if (position != 0) {
@@ -506,7 +505,7 @@ public class ChatListViewAdapter extends BaseAdapter {
         holder.voice_image.setLayoutParams(lParams);
     }
 
-    private void toMsgUserLayout(final ToUserMsgViewHolder holder, final ChatBean tbub, final int position) {
+    private void toMsgUserLayout(final ToUserMsgViewHolder holder, final com.chatmvp.common.greenDAOBean.ChatBean tbub, final int position) {
         holder.headicon.setBackgroundResource(R.mipmap.grzx_tx_s);
         holder.headicon.setImageDrawable(context.getResources()
                 .getDrawable(R.mipmap.grzx_tx_s));
@@ -530,7 +529,7 @@ public class ChatListViewAdapter extends BaseAdapter {
         holder.content.setSpanText(handler, tbub.getUserContent(), isGif);
     }
 
-    private void toImgUserLayout(final ToUserImgViewHolder holder, final ChatBean tbub, final int position) {
+    private void toImgUserLayout(final ToUserImgViewHolder holder, final com.chatmvp.common.greenDAOBean.ChatBean tbub, final int position) {
         holder.headicon.setBackgroundResource(R.mipmap.grzx_tx_s);
         switch (tbub.getSendState()) {
             case ConstantValues.SENDING:
@@ -626,7 +625,7 @@ public class ChatListViewAdapter extends BaseAdapter {
         }
     }
 
-    private void toVoiceUserLayout(final ToUserVoiceViewHolder holder, final ChatBean tbub, final int position) {
+    private void toVoiceUserLayout(final ToUserVoiceViewHolder holder, final com.chatmvp.common.greenDAOBean.ChatBean tbub, final int position) {
         holder.headicon.setBackgroundResource(R.mipmap.grzx_tx_s);
         switch (tbub.getSendState()) {
             case ConstantValues.SENDING:
@@ -725,8 +724,8 @@ public class ChatListViewAdapter extends BaseAdapter {
                 drawable = (AnimationDrawable) holder.voice_anim
                         .getBackground();
                 drawable.start();
-                String voicePath = tbub.getUserVoiceUrl() == null ? ""
-                        : tbub.getUserVoiceUrl();
+                String voicePath = tbub.getUserVoicePath() == null ? ""
+                        : tbub.getUserVoicePath();
                 if (voiceIsRead != null) {
                     voiceIsRead.voiceOnClick(position);
                 }
