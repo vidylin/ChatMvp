@@ -37,7 +37,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name=".activity.MainActivity"
-            android:windowSoftInputMode="stateAlwaysHidden|adjustPan"
+
             android:launchMode="singleTask"
             android:screenOrientation="portrait">
 
