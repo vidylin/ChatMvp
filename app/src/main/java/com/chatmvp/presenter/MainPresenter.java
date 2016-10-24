@@ -8,8 +8,8 @@ import android.provider.MediaStore;
 
 import com.chatmvp.View.MainView;
 import com.chatmvp.activity.MainActivity;
-import com.chatmvp.common.GreenDAOBean.ChatBean;
-import com.chatmvp.common.GreenDAOBean.RecentItem;
+import com.chatmvp.common.greenDAOBean.ChatBean;
+import com.chatmvp.common.greenDAOBean.RecentItem;
 import com.chatmvp.common.basePresenter.BasePresenter;
 import com.chatmvp.common.constant.ConstantValues;
 import com.chatmvp.common.db.ChatDBManager;

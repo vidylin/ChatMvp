@@ -24,7 +24,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.chatmvp.R;
-import com.chatmvp.common.GreenDAOBean.ChatBean;
+import com.chatmvp.common.greenDAOBean.ChatBean;
 import com.chatmvp.common.constant.ConstantValues;
 import com.chatmvp.common.utils.FileSaveUtil;
 import com.chatmvp.common.widget.BubbleImageView;

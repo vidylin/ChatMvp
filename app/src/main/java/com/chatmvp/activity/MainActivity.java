@@ -21,7 +21,7 @@ import android.widget.Toast;
 import com.chatmvp.AppComponent;
 import com.chatmvp.R;
 import com.chatmvp.View.MainView;
-import com.chatmvp.common.GreenDAOBean.ChatBean;
+import com.chatmvp.common.greenDAOBean.ChatBean;
 import com.chatmvp.common.adapter.ChatListViewAdapter;
 import com.chatmvp.common.adapter.DataAdapter;
 import com.chatmvp.common.baseActivity.BaseActivity;

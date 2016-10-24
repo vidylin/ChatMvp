@@ -1,6 +1,6 @@
 package com.chatmvp.common.db;
 
-import com.chatmvp.common.GreenDAOBean.ChatBean;
+import com.chatmvp.common.greenDAOBean.ChatBean;
 import com.chatmvp.common.db.base.BaseManager;
 
 import org.greenrobot.greendao.AbstractDao;

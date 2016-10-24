@@ -1,6 +1,6 @@
 package com.chatmvp.View;
 
-import com.chatmvp.common.GreenDAOBean.ChatBean;
+import com.chatmvp.common.greenDAOBean.ChatBean;
 import com.chatmvp.common.baseView.BaseView;
 
 /**

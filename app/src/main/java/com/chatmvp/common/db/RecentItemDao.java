@@ -3,8 +3,8 @@ package com.chatmvp.common.db;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
 
-import com.chatmvp.common.GreenDAOBean.DaoSession;
-import com.chatmvp.common.GreenDAOBean.RecentItem;
+import com.chatmvp.common.greenDAOBean.DaoSession;
+import com.chatmvp.common.greenDAOBean.RecentItem;
 
 import org.greenrobot.greendao.AbstractDao;
 import org.greenrobot.greendao.Property;

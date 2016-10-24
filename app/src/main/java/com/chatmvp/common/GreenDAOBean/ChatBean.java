@@ -1,4 +1,4 @@
-package com.chatmvp.common.GreenDAOBean;
+package com.chatmvp.common.greenDAOBean;
 
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Id;

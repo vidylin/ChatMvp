@@ -6,8 +6,8 @@ import android.database.sqlite.SQLiteException;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import com.chatmvp.common.GreenDAOBean.DaoMaster;
-import com.chatmvp.common.GreenDAOBean.DaoSession;
+import com.chatmvp.common.greenDAOBean.DaoMaster;
+import com.chatmvp.common.greenDAOBean.DaoSession;
 import com.chatmvp.common.db.interfaces.IDatabase;
 
 import org.greenrobot.greendao.AbstractDao;

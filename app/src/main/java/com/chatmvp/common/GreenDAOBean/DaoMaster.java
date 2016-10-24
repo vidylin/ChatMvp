@@ -1,4 +1,4 @@
-package com.chatmvp.common.GreenDAOBean;
+package com.chatmvp.common.greenDAOBean;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
