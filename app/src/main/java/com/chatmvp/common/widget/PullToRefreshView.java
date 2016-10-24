@@ -19,8 +19,8 @@ public class PullToRefreshView extends View {
     public View getSlideView(int slideViewType) {
         View baseView = null;
         switch (slideViewType) {
-            case RECYCLERVIEW:
-                baseView = new PullToRefreshRecyclerView(getContext());
+            case LISTVIEW:
+                baseView = new PullToRefreshListView(getContext());
                 break;
             default:
                 baseView = null;

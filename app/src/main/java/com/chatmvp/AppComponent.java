@@ -2,8 +2,8 @@ package com.chatmvp;
 
 import android.app.Application;
 
-import com.chatmvp.common.db.ChatBeanDB;
-import com.chatmvp.common.db.RecentDB;
+import com.chatmvp.common.db.ChatDBManager;
+import com.chatmvp.common.db.RecentItemDBManager;
 import com.chatmvp.common.utils.SharePreferenceUtil;
 
 import javax.inject.Singleton;
@@ -18,6 +18,6 @@ import dagger.Component;
 public interface AppComponent {
     Application getApplication();
     SharePreferenceUtil getSharePreferenceUtil();
-    ChatBeanDB getChatBeanDB();
-    RecentDB getRecentDB();
+    ChatDBManager getChatDBManager();
+    RecentItemDBManager getRecentItemDBManager();
 }

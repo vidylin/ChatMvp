@@ -1,7 +1,7 @@
 package com.chatmvp.View;
 
+import com.chatmvp.common.GreenDAOBean.ChatBean;
 import com.chatmvp.common.baseView.BaseView;
-import com.chatmvp.common.entity.ChatBean;
 
 /**
  * Created by Administrator on 2016/10/19.

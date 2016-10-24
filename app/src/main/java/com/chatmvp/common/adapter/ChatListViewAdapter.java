@@ -24,7 +24,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.chatmvp.R;
-import com.chatmvp.common.entity.ChatBean;
+import com.chatmvp.common.GreenDAOBean.ChatBean;
+import com.chatmvp.common.constant.ConstantValues;
 import com.chatmvp.common.utils.FileSaveUtil;
 import com.chatmvp.common.widget.BubbleImageView;
 import com.chatmvp.common.widget.GifTextView;
@@ -41,6 +42,7 @@ import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -49,11 +51,8 @@ import java.util.List;
 public class ChatListViewAdapter extends BaseAdapter {
     private Context context;
     private List<ChatBean> userList = new ArrayList<ChatBean>();
-    //    public static int FROM_USER = 0;//接收消息类型
-//    public static int TO_USER = 1;//发送消息类型
-//    public static int TEXT_MSG = 0;//文字表情消息
-//    public static int VOICE_MSG = 1;//语音消息
-//    public static int IMG_MSG = 2;//图片消息
+    private ArrayList<String> imageList = new ArrayList<String>();
+    private HashMap<Integer,Integer> imagePosition = new HashMap<Integer,Integer>();
     public static final int FROM_USER_MSG = 0;//接收消息类型
     public static final int TO_USER_MSG = 1;//发送消息类型
     public static final int FROM_USER_IMG = 2;//接收消息类型
@@ -123,6 +122,13 @@ public class ChatListViewAdapter extends BaseAdapter {
 
     public void setUserList(List<ChatBean> userList) {
         this.userList = userList;
+    }
+
+    public void setImageList(ArrayList<String> imageList) {
+        this.imageList = imageList;
+    }
+    public void setImagePosition(HashMap<Integer,Integer> imagePosition) {
+        this.imagePosition = imagePosition;
     }
 
     @Override
@@ -393,15 +399,9 @@ public class ChatListViewAdapter extends BaseAdapter {
                 public void onClick(View view) {
                     // TODO Auto-generated method stub
                     stopPlayVoice();
-                    ArrayList<String> mDatas = new ArrayList<String>();
-                    if (hasLocal) {
-                        mDatas.add(imageSrc);
-                    } else {
-                        mDatas.add(imageUrlSrc);
-                    }
 //                    Intent intent = new Intent(context, ImageViewActivity.class);
-//                    intent.putStringArrayListExtra("images", mDatas);
-//                    intent.putExtra("clickedIndex", 0);
+//                    intent.putStringArrayListExtra("images", imageList);
+//                    intent.putExtra("clickedIndex", imagePosition.get(position));
 //                    context.startActivity(intent);
                 }
 
@@ -533,7 +533,7 @@ public class ChatListViewAdapter extends BaseAdapter {
     private void toImgUserLayout(final ToUserImgViewHolder holder, final ChatBean tbub, final int position) {
         holder.headicon.setBackgroundResource(R.mipmap.grzx_tx_s);
         switch (tbub.getSendState()) {
-            case 0:
+            case ConstantValues.SENDING:
                 an = AnimationUtils.loadAnimation(context,
                         R.anim.update_loading_progressbar_anim);
                 LinearInterpolator lin = new LinearInterpolator();
@@ -546,12 +546,12 @@ public class ChatListViewAdapter extends BaseAdapter {
                 holder.sendFailImg.setVisibility(View.VISIBLE);
                 break;
 
-            case 1:
+            case ConstantValues.COMPLETED:
                 holder.sendFailImg.clearAnimation();
                 holder.sendFailImg.setVisibility(View.GONE);
                 break;
 
-            case 2:
+            case ConstantValues.SENDERROR:
                 holder.sendFailImg.clearAnimation();
                 holder.sendFailImg
                         .setBackgroundResource(R.mipmap.msg_state_fail_resend_pressed);
@@ -616,15 +616,9 @@ public class ChatListViewAdapter extends BaseAdapter {
                 public void onClick(View view) {
                     // TODO Auto-generated method stub
                     stopPlayVoice();
-                    ArrayList<String> mDatas = new ArrayList<String>();
-                    if (hasLocal) {
-                        mDatas.add(imageSrc);
-                    } else {
-                        mDatas.add(imageUrlSrc);
-                    }
 //                    Intent intent = new Intent(context, ImageViewActivity.class);
-//                    intent.putStringArrayListExtra("images", mDatas);
-//                    intent.putExtra("clickedIndex", 0);
+//                    intent.putStringArrayListExtra("images", imageList);
+//                    intent.putExtra("clickedIndex", imagePosition.get(position));
 //                    context.startActivity(intent);
                 }
 
@@ -635,7 +629,7 @@ public class ChatListViewAdapter extends BaseAdapter {
     private void toVoiceUserLayout(final ToUserVoiceViewHolder holder, final ChatBean tbub, final int position) {
         holder.headicon.setBackgroundResource(R.mipmap.grzx_tx_s);
         switch (tbub.getSendState()) {
-            case 0:
+            case ConstantValues.SENDING:
                 an = AnimationUtils.loadAnimation(context,
                         R.anim.update_loading_progressbar_anim);
                 LinearInterpolator lin = new LinearInterpolator();
@@ -648,12 +642,12 @@ public class ChatListViewAdapter extends BaseAdapter {
                 holder.sendFailImg.setVisibility(View.VISIBLE);
                 break;
 
-            case 1:
+            case ConstantValues.COMPLETED:
                 holder.sendFailImg.clearAnimation();
                 holder.sendFailImg.setVisibility(View.GONE);
                 break;
 
-            case 2:
+            case ConstantValues.SENDERROR:
                 holder.sendFailImg.clearAnimation();
                 holder.sendFailImg
                         .setBackgroundResource(R.mipmap.msg_state_fail_resend_pressed);

@@ -8,13 +8,12 @@ import android.provider.MediaStore;
 
 import com.chatmvp.View.MainView;
 import com.chatmvp.activity.MainActivity;
+import com.chatmvp.common.GreenDAOBean.ChatBean;
+import com.chatmvp.common.GreenDAOBean.RecentItem;
 import com.chatmvp.common.basePresenter.BasePresenter;
 import com.chatmvp.common.constant.ConstantValues;
-import com.chatmvp.common.db.ChatBeanDB;
-import com.chatmvp.common.db.RecentDB;
-import com.chatmvp.common.entity.ChatBean;
-import com.chatmvp.common.entity.MessageItem;
-import com.chatmvp.common.entity.RecentItem;
+import com.chatmvp.common.db.ChatDBManager;
+import com.chatmvp.common.db.RecentItemDBManager;
 import com.chatmvp.common.utils.FileSaveUtil;
 import com.chatmvp.common.utils.GetCurrentTime;
 import com.chatmvp.common.utils.PictureUtil;
@@ -23,7 +22,6 @@ import com.chatmvp.common.widget.ChatBottomView;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -32,14 +30,14 @@ import java.util.List;
 public class MainPresenter extends BasePresenter<MainView>{
     private MainActivity mainActivity;
     private SharePreferenceUtil util;
-    private ChatBeanDB chatBeanDB;
-    private RecentDB recentDB;
+    private ChatDBManager chatDBManager;
+    private RecentItemDBManager recentItemDBManager;
 
-    public MainPresenter(MainActivity mainActivity,SharePreferenceUtil util,ChatBeanDB chatBeanDB,RecentDB recentDB){
+    public MainPresenter(MainActivity mainActivity,SharePreferenceUtil util,ChatDBManager chatDBManager,RecentItemDBManager recentItemDBManager){
         this.mainActivity = mainActivity;
         this.util = util;
-        this.chatBeanDB = chatBeanDB;
-        this.recentDB = recentDB;
+        this.chatDBManager = chatDBManager;
+        this.recentItemDBManager = recentItemDBManager;
         attachView(mainActivity);
     }
 
@@ -91,7 +89,7 @@ public class MainPresenter extends BasePresenter<MainView>{
         ChatBean mChatBean = getTbub("13622215086","vidy", ConstantValues.TO_USER_VOICE,
                 null, null, null,
                 null, filePath, null,seconds, 0);
-        chatBeanDB.saveMsg("13622215085",mChatBean);
+        chatDBManager.insert(mChatBean);
         mvpView.sendMsgResult(mChatBean);
     }
     /**
@@ -101,15 +99,17 @@ public class MainPresenter extends BasePresenter<MainView>{
         ChatBean mChatBean = getTbub("13622215086","vidy", ConstantValues.TO_USER_MSG,
                 content, null, null,
                 null, null, null,0, 0);
-        chatBeanDB.saveMsg("13622215085",mChatBean);
+        boolean result = chatDBManager.insert(mChatBean);
         //发送消息到服务器
-        //...
+        //... RecentItem(long id, String userId, int headImg, String name,String message, int newNum, long time, int msgType, int voiceTime)
         //保存最近一条消息
-        RecentItem recentItem = new RecentItem(
-                MessageItem.MESSAGE_TYPE_TEXT, "13622215085",
-                0, "vidy_lin", content, 0,
-                System.currentTimeMillis(), 0);
-        recentDB.saveRecent(recentItem);
+        RecentItem recentItem = new RecentItem();
+        recentItem.setUserId("13622215085");
+        recentItem.setName("vidy_lin");
+        recentItem.setMsgType(ConstantValues.MESSAGE_TYPE_TEXT);
+        recentItem.setMessage(content);
+        recentItem.setTime(System.currentTimeMillis());
+        recentItemDBManager.insert(recentItem);
         mvpView.sendMsgResult(mChatBean);
     }
 
@@ -121,29 +121,38 @@ public class MainPresenter extends BasePresenter<MainView>{
         ChatBean mChatBean = getTbub("13622215086","vidy", ConstantValues.TO_USER_IMG,
                 null, filePath, null,
                 null, null, null,0f, 0);
-        chatBeanDB.saveMsg("13622215085",mChatBean);
+        chatDBManager.insert(mChatBean);
         mvpView.sendMsgResult(mChatBean);
     }
 
-    /**
-     * 加载消息历史，从数据库中读出
-     */
-    public List<ChatBean> initMsgData() {
-        String ss = "13622215086";
-        List<ChatBean> list = chatBeanDB.getMsg("13622215085", 0,ss);
-        List<ChatBean> msgList = new ArrayList<>();// 消息对象数组
-        if (list.size() > 0) {
-            for (ChatBean entity : list) {
-                if (entity.getUserName().equals("")) {
-                    entity.setUserName("vvvv");
-                }
-                if (entity.getUserHeadIcon() ==null) {
-                    entity.setUserHeadIcon("");
-                }
-                msgList.add(entity);
-            }
-        }
-        return msgList;
+//    /**
+//     * 加载消息历史，从数据库中读出
+//     */
+//    public List<ChatBean> initMsgData() {
+//        String ss = "13622215086";
+//        List<ChatBean> list = chatDBManager.queryRaw("USER_ID",ss);
+//        List<ChatBean> msgList = new ArrayList<>();// 消息对象数组
+//        if (list.size() > 0) {
+//            for (ChatBean entity : list) {
+//                if (entity.getUserName().equals("")) {
+//                    entity.setUserName("vvvv");
+//                }
+//                if (entity.getUserHeadIcon() ==null) {
+//                    entity.setUserHeadIcon("");
+//                }
+//                msgList.add(entity);
+//            }
+//        }
+//        return msgList;
+//    }
+
+    public int loadRecords(int number){
+        int page = (int) chatDBManager.getPages(number);
+        return  page;
+    }
+
+    public List<ChatBean> loadPages(int page, int number){
+       return chatDBManager.loadPages(page, number);
     }
 
     private ChatBean getTbub(String userId,String username, int type,

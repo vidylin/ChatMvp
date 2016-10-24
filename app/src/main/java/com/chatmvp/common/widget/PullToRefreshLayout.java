@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
 import com.chatmvp.common.utils.ScreenUtil;
 
 
@@ -23,6 +24,7 @@ public class PullToRefreshLayout extends LinearLayout {
     private View myList;
     private TextView pullText;
     private pulltorefreshNotifier pullNotifier;
+    private boolean isPull = true;
 
     public PullToRefreshLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -31,7 +33,7 @@ public class PullToRefreshLayout extends LinearLayout {
         VDH = ViewDragHelper.create(this, 10.0f, new DragHelperCallback());
     }
 
-    public void setSlideView(View view){
+    public void setSlideView(View view) {
         init(view);
     }
 
@@ -108,7 +110,7 @@ public class PullToRefreshLayout extends LinearLayout {
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent event) {
-        boolean shouldIntercept = VDH.shouldInterceptTouchEvent(event);
+        boolean shouldIntercept = VDH.shouldInterceptTouchEvent(event) && isPull;
         return shouldIntercept;
     }
 
@@ -239,4 +241,10 @@ public class PullToRefreshLayout extends LinearLayout {
         public void onPull();
     }
 
+    /**
+     * 禁止下拉
+     */
+    public void setPullGone() {
+        isPull = false;
+    }
 }

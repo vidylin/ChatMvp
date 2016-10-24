@@ -3,8 +3,8 @@ package com.chatmvp;
 import android.app.Application;
 
 import com.chatmvp.common.constant.ConstantValues;
-import com.chatmvp.common.db.ChatBeanDB;
-import com.chatmvp.common.db.RecentDB;
+import com.chatmvp.common.db.ChatDBManager;
+import com.chatmvp.common.db.RecentItemDBManager;
 import com.chatmvp.common.utils.SharePreferenceUtil;
 
 import javax.inject.Singleton;
@@ -37,14 +37,14 @@ public class AppModule {
 
     @Provides
     @Singleton
-    ChatBeanDB provideChatBeanDB(){
-        return new ChatBeanDB(AppApplication.context);
+    ChatDBManager provideChatDBManager(){
+        return new ChatDBManager();
     }
 
     @Provides
     @Singleton
-    RecentDB provideRecentDB(){
-        return new RecentDB(AppApplication.context);
+    RecentItemDBManager provideRecentDB(){
+        return new RecentItemDBManager();
     }
 
 }

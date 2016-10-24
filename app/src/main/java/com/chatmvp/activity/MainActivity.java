@@ -8,6 +8,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.KeyEvent;
 import android.view.View;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -20,12 +21,11 @@ import android.widget.Toast;
 import com.chatmvp.AppComponent;
 import com.chatmvp.R;
 import com.chatmvp.View.MainView;
+import com.chatmvp.common.GreenDAOBean.ChatBean;
 import com.chatmvp.common.adapter.ChatListViewAdapter;
-import com.chatmvp.common.adapter.ChatRecyclerAdapter;
 import com.chatmvp.common.adapter.DataAdapter;
-import com.chatmvp.common.animator.SlideInOutBottomItemAnimator;
 import com.chatmvp.common.baseActivity.BaseActivity;
-import com.chatmvp.common.entity.ChatBean;
+import com.chatmvp.common.constant.ConstantValues;
 import com.chatmvp.common.utils.FileSaveUtil;
 import com.chatmvp.common.utils.ImageCheckoutUtil;
 import com.chatmvp.common.utils.KeyBoardUtils;
@@ -33,7 +33,7 @@ import com.chatmvp.common.widget.AudioRecordButton;
 import com.chatmvp.common.widget.ChatBottomView;
 import com.chatmvp.common.widget.HeadIconSelectorView;
 import com.chatmvp.common.widget.PullToRefreshLayout;
-import com.chatmvp.common.widget.PullToRefreshRecyclerView;
+import com.chatmvp.common.widget.PullToRefreshListView;
 import com.chatmvp.common.widget.PullToRefreshView;
 import com.chatmvp.common.widget.WrapContentLinearLayoutManager;
 import com.chatmvp.component.DaggerMainActivityComponent;
@@ -45,6 +45,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -85,16 +86,23 @@ public class MainActivity extends BaseActivity implements MainView {
     LinearLayout bottomContainerLl;
     @Bind(R.id.layout_tongbao_rl)
     RelativeLayout layoutTongbaoRl;
-    private PullToRefreshRecyclerView myList;
+    public PullToRefreshListView myList;
     private String item[] = {"你好!", "我正忙着呢,等等", "有啥事吗？", "有时间聊聊吗", "再见！"};
     private DataAdapter adapter;
-    private ChatRecyclerAdapter tbAdapter;
+    public ChatListViewAdapter tbAdapter;
     private boolean CAN_WRITE_EXTERNAL_STORAGE = true;
     private String camPicPath;
     private List<ChatBean> tblist = new ArrayList<>();
     private WrapContentLinearLayoutManager wcLinearLayoutManger;
     private static final int IMAGE_SIZE = 100 * 1024;
     private File mCurrentPhotoFile;
+    private List<ChatBean> pagelist = new ArrayList<>();
+    private ArrayList<String> imageList = new ArrayList<>();//adapter图片数据
+    private HashMap<Integer, Integer> imagePosition = new HashMap<>();//图片下标位置
+    private boolean isDown = false;
+    private int page = 0;
+    private int number = 10;
+    private int position;
 
     @Override
     protected void setupActivityComponent(AppComponent appComponent) {
@@ -110,21 +118,20 @@ public class MainActivity extends BaseActivity implements MainView {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
         ButterKnife.bind(this);
-        tblist = mainPresenter.initMsgData();
         init();
     }
 
     private void init(){
-        contentLv.setSlideView(new PullToRefreshView(this).getSlideView(PullToRefreshView.RECYCLERVIEW));
-        assert contentLv != null;
-        myList = (PullToRefreshRecyclerView) contentLv.returnMylist();
+        contentLv.setSlideView(new PullToRefreshView(this).getSlideView(PullToRefreshView.LISTVIEW));
+        myList = (PullToRefreshListView) contentLv.returnMylist();
+        myList.setTranscriptMode(AbsListView.TRANSCRIPT_MODE_NORMAL);
         adapter = new DataAdapter(this, item);
         messLv.setAdapter(adapter);
-        tbAdapter = new ChatRecyclerAdapter(this, tblist);
+        tbAdapter = new ChatListViewAdapter(this);
+        tbAdapter.setUserList(tblist);
+        myList.setAdapter(tbAdapter);
 
         wcLinearLayoutManger = new WrapContentLinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
-        myList.setLayoutManager(wcLinearLayoutManger);
-        myList.setItemAnimator(new SlideInOutBottomItemAnimator(myList));
         myList.setAdapter(tbAdapter);
 
         messEt.setOnKeyListener(onKeyListener);
@@ -181,6 +188,97 @@ public class MainActivity extends BaseActivity implements MainView {
                 }
             }
         });
+
+        myList.setOnScrollListener(new AbsListView.OnScrollListener() {
+
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+                // TODO Auto-generated method stub
+                switch (scrollState) {
+                    case SCROLL_STATE_IDLE:
+                        tbAdapter.handler.removeCallbacksAndMessages(null);
+                        tbAdapter.setIsGif(true);
+                        tbAdapter.isPicRefresh = false;
+                        tbAdapter.notifyDataSetChanged();
+                        break;
+                    case SCROLL_STATE_TOUCH_SCROLL:
+                        tbAdapter.handler.removeCallbacksAndMessages(null);
+                        tbAdapter.setIsGif(false);
+                        tbAdapter.isPicRefresh = true;
+                        reset();
+                        KeyBoardUtils.hideKeyBoard(MainActivity.this,
+                                messEt);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            @Override
+            public void onScroll(AbsListView absListView, int i, int i1, int i2) {
+
+            }
+        });
+        page = mainPresenter.loadRecords(number);
+        loadRecords();
+    }
+
+    private void loadRecords() {
+        isDown = true;
+        if (pagelist != null) {
+            pagelist.clear();
+        }
+        pagelist = mainPresenter.loadPages(page,number);
+        position = pagelist.size();
+        if (pagelist.size() != 0) {
+            pagelist.addAll(tblist);
+            tblist.clear();
+            tblist.addAll(pagelist);
+            if (imageList != null) {
+                imageList.clear();
+            }
+            if (imagePosition != null) {
+                imagePosition.clear();
+            }
+            int key = 0;
+            int position = 0;
+            for (ChatBean cmb : tblist) {
+                if (cmb.getType() == ConstantValues.FROM_USER_IMG || cmb.getType() == ConstantValues.TO_USER_IMG) {
+                    imageList.add(cmb.getImageLocal());
+                    imagePosition.put(key, position);
+                    position++;
+                }
+                key++;
+            }
+            tbAdapter.setImageList(imageList);
+            tbAdapter.setImagePosition(imagePosition);
+            contentLv.refreshComplete();
+            tbAdapter.notifyDataSetChanged();
+            myList.setSelection(position - 1);
+            isDown = false;
+            if (page == 0) {
+                contentLv.refreshComplete();
+                contentLv.setPullGone();
+            } else {
+                page--;
+            }
+        } else {
+            if (page == 0) {
+                contentLv.refreshComplete();
+                contentLv.setPullGone();
+            }
+        }
+    }
+
+    /**
+     * 界面复位
+     */
+    protected void reset() {
+        otherLv.setVisibility(View.GONE);
+        messLv.setVisibility(View.GONE);
+        emoji.setBackgroundResource(R.mipmap.emoji);
+        messIv.setBackgroundResource(R.mipmap.tb_more);
+        voiceIv.setBackgroundResource(R.mipmap.voice_btn_normal);
     }
 
     @OnItemClick({R.id.mess_lv})
@@ -267,8 +365,8 @@ public class MainActivity extends BaseActivity implements MainView {
         tblist.add(mChatBean);
         messEt.setText("");
         tbAdapter.isPicRefresh = true;
-        tbAdapter.notifyItemInserted(tblist.size() - 1);
-        myList.smoothScrollToPosition(tbAdapter.getItemCount() - 1);
+        tbAdapter.notifyDataSetChanged();
+        myList.setSelection(tblist.size() - 1);
     }
 
     @Override
@@ -329,4 +427,6 @@ public class MainActivity extends BaseActivity implements MainView {
             // Toast.makeText(this, "操作取消", Toast.LENGTH_SHORT).show();
         }
     }
+
+
 }

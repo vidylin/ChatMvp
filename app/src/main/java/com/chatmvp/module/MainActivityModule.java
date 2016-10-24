@@ -2,8 +2,8 @@ package com.chatmvp.module;
 
 import com.chatmvp.ActivityScope;
 import com.chatmvp.activity.MainActivity;
-import com.chatmvp.common.db.ChatBeanDB;
-import com.chatmvp.common.db.RecentDB;
+import com.chatmvp.common.db.ChatDBManager;
+import com.chatmvp.common.db.RecentItemDBManager;
 import com.chatmvp.common.utils.SharePreferenceUtil;
 import com.chatmvp.presenter.MainPresenter;
 
@@ -28,7 +28,7 @@ public class MainActivityModule {
 
     @ActivityScope
     @Provides
-    MainPresenter provideMainActivityPresenter(MainActivity mainActivity, SharePreferenceUtil util, ChatBeanDB chatBeanDB, RecentDB recentDB) {
-        return new MainPresenter(mainActivity,util,chatBeanDB,recentDB);
+    MainPresenter provideMainActivityPresenter(MainActivity mainActivity, SharePreferenceUtil util, ChatDBManager chatDBManager, RecentItemDBManager recentItemDBManager) {
+        return new MainPresenter(mainActivity,util,chatDBManager,recentItemDBManager);
     }
 }
