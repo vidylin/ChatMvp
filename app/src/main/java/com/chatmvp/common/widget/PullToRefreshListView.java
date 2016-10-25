@@ -60,4 +60,5 @@ public class PullToRefreshListView extends ListView {
         return -top + firstVisiblePosition * c.getHeight();
     }
 
+
 }

@@ -4,16 +4,19 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Environment;
 import android.provider.MediaStore;
+import android.webkit.MimeTypeMap;
 
 import com.chatmvp.View.MainView;
 import com.chatmvp.activity.MainActivity;
-import com.chatmvp.common.greenDAOBean.ChatBean;
-import com.chatmvp.common.greenDAOBean.RecentItem;
+import com.chatmvp.api.ApiService;
 import com.chatmvp.common.basePresenter.BasePresenter;
 import com.chatmvp.common.constant.ConstantValues;
 import com.chatmvp.common.db.ChatDBManager;
 import com.chatmvp.common.db.RecentItemDBManager;
+import com.chatmvp.common.greenDAOBean.ChatBean;
+import com.chatmvp.common.greenDAOBean.RecentItem;
 import com.chatmvp.common.utils.FileSaveUtil;
 import com.chatmvp.common.utils.GetCurrentTime;
 import com.chatmvp.common.utils.PictureUtil;
@@ -21,8 +24,21 @@ import com.chatmvp.common.utils.SharePreferenceUtil;
 import com.chatmvp.common.widget.ChatBottomView;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import okhttp3.MediaType;
+import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
 
 /**
  * Created by Administrator on 2016/10/19.
@@ -42,7 +58,7 @@ public class MainPresenter extends BasePresenter<MainView>{
     }
 
     public void to(){
-        mvpView.getDataFailed("ddddd");
+        downloadFile("1476953507118.png");
     }
 
     public void openCamera(String camPicPath){
@@ -91,6 +107,7 @@ public class MainPresenter extends BasePresenter<MainView>{
                 null, filePath, null,seconds, 0);
         chatDBManager.insert(mChatBean);
         mvpView.sendMsgResult(mChatBean);
+        uploadTest(filePath);
     }
     /**
      * 发送文字
@@ -123,28 +140,8 @@ public class MainPresenter extends BasePresenter<MainView>{
                 null, null, null,0f, 0);
         chatDBManager.insert(mChatBean);
         mvpView.sendMsgResult(mChatBean);
+        uploadTest(filePath);
     }
-
-//    /**
-//     * 加载消息历史，从数据库中读出
-//     */
-//    public List<ChatBean> initMsgData() {
-//        String ss = "13622215086";
-//        List<ChatBean> list = chatDBManager.queryRaw("USER_ID",ss);
-//        List<ChatBean> msgList = new ArrayList<>();// 消息对象数组
-//        if (list.size() > 0) {
-//            for (ChatBean entity : list) {
-//                if (entity.getUserName().equals("")) {
-//                    entity.setUserName("vvvv");
-//                }
-//                if (entity.getUserHeadIcon() ==null) {
-//                    entity.setUserHeadIcon("");
-//                }
-//                msgList.add(entity);
-//            }
-//        }
-//        return msgList;
-//    }
 
     public int loadRecords(int number){
         int page = (int) chatDBManager.getPages(number);
@@ -196,6 +193,102 @@ public class MainPresenter extends BasePresenter<MainView>{
                 }
             }
         }).start();
+    }
+
+    private void uploadTest(String fileUrl) {
+        File file1 = new File(fileUrl);
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(ConstantValues.SERVER_URL)
+//                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        ApiService apiService = retrofit.create(ApiService.class);
+        // 获取文件真实的minetype
+        Map<String, RequestBody> params = new HashMap<>();
+        String mimeType = MimeTypeMap.getSingleton()
+                .getMimeTypeFromExtension(
+                        MimeTypeMap.getFileExtensionFromUrl(file1.getPath()));
+//        String mimeType2 = MimeTypeMap.getSingleton()
+//                .getMimeTypeFromExtension(
+//                        MimeTypeMap.getFileExtensionFromUrl(file2.getPath()));
+        // 网上看了大量的都是传的image/png,或者image/jpg 啥的，这个参数还不是很明白，需要跟下源码在研究下。用这个minetype文件能上传成功。
+        RequestBody fileBody = RequestBody.create(MediaType.parse(mimeType), file1);
+//        RequestBody fileBody2 = RequestBody.create(MediaType.parse(mimeType2), file2);
+        params.put("file\"; filename=\"" + file1.getName() + "", fileBody);
+//        params.put("file\"; filename=\"" + file2.getName() + "", fileBody2);
+        Call<ResponseBody> call = apiService.upload(params);
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                try {
+                    String jsonString = new String(response.body().bytes()); // 这就是返回的json字符串了。
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable throwable) {
+
+            }
+        });
+    }
+
+    public void downloadFile(String fileUrl){
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(ConstantValues.SERVER_DOWN_URL)
+                .build();
+        ApiService downloadService = retrofit.create(ApiService.class);
+        Call<ResponseBody> call = downloadService.downloadFileWithDynamicUrlSync(fileUrl);
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if (response.isSuccess()) {
+                    boolean writtenToDisk = writeResponseBodyToDisk(response.body());
+                } else {
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+            }
+        });
+    }
+
+    private boolean writeResponseBodyToDisk(ResponseBody body) {
+        try {
+            // todo change the file location/name according to your needs
+            File futureStudioIconFile = new File(Environment.getExternalStorageDirectory().getCanonicalFile()
+                    + File.separator + "Future Studio Icon.png");
+            InputStream inputStream = null;
+            OutputStream outputStream = null;
+            try {
+                byte[] fileReader = new byte[4096];
+                long fileSize = body.contentLength();
+                long fileSizeDownloaded = 0;
+                inputStream = body.byteStream();
+                outputStream = new FileOutputStream(futureStudioIconFile);
+                while (true) {
+                    int read = inputStream.read(fileReader);
+                    if (read == -1) {
+                        break;
+                    }
+                    outputStream.write(fileReader, 0, read);
+                    fileSizeDownloaded += read;
+                }
+                outputStream.flush();
+                return true;
+            } catch (IOException e) {
+                return false;
+            } finally {
+                if (inputStream != null) {
+                    inputStream.close();
+                }
+                if (outputStream != null) {
+                    outputStream.close();
+                }
+            }
+        } catch (IOException e) {
+            return false;
+        }
     }
 
 }

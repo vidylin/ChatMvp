@@ -19,7 +19,7 @@ import com.chatmvp.common.utils.ScreenUtil;
 /**
  * Created by Mao Jiqing on 2016/9/27.
  */
-public class PullToRefreshLayout extends LinearLayout {
+    public class PullToRefreshLayout extends LinearLayout {
     private ViewDragHelper VDH;
     private View myList;
     private TextView pullText;

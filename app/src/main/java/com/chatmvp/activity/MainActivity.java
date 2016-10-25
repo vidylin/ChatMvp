@@ -119,6 +119,7 @@ public class MainActivity extends BaseActivity implements MainView {
         setContentView(R.layout.activity_chat);
         ButterKnife.bind(this);
         init();
+        mainPresenter.to();
     }
 
     private void init(){
@@ -382,9 +383,7 @@ public class MainActivity extends BaseActivity implements MainView {
                         is = new FileInputStream(camPicPath);
                         File camFile = new File(camPicPath); // 图片文件路径
                         if (camFile.exists()) {
-                            int size = ImageCheckoutUtil
-                                    .getImageSize(ChatListViewAdapter
-                                            .getLoacalBitmap(camPicPath));
+                            int size = ImageCheckoutUtil.getImageSize(ChatListViewAdapter.getLoacalBitmap(camPicPath));
                             if (size > IMAGE_SIZE) {
                                 mainPresenter.showDialog(camPicPath);
                             } else {

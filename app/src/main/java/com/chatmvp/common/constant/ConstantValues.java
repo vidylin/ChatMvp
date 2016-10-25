@@ -22,4 +22,6 @@ public class ConstantValues {
     public static final int SENDING = 0;
     public static final int COMPLETED = 1;
     public static final int SENDERROR = 2;
+    public static final String SERVER_URL = "http://192.168.4.120:8080/UploadServlet/";
+    public static final String SERVER_DOWN_URL = "http://192.168.4.120:8080/UploadServlet/";
 }
